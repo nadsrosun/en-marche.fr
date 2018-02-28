@@ -97,9 +97,9 @@ class CitizenActionMessageNotifier implements EventSubscriberInterface
         Adherent $host
     ): CitizenActionCancellationMessage {
         return CitizenActionCancellationMessage::create(
-            $citizenAction,
-            $host,
             $registered,
+            $host,
+            $citizenAction,
             $this->generateUrl('app_search_events')
         );
     }
