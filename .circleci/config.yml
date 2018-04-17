@@ -184,6 +184,4 @@ workflows:
                 filters:
                     branches:
                         only:
-                            - develop
-                            - release
                             - master
