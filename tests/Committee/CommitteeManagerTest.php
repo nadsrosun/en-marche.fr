@@ -7,6 +7,7 @@ use AppBundle\Committee\CommitteeManager;
 use AppBundle\DataFixtures\ORM\LoadAdherentData;
 use AppBundle\DataFixtures\ORM\LoadCommitteeMembershipHistoryData;
 use AppBundle\Entity\Adherent;
+use AppBundle\Entity\Committee;
 use AppBundle\Entity\CommitteeMembership;
 use AppBundle\Entity\ReferentTag;
 use AppBundle\Entity\Reporting\CommitteeMembershipHistory;
