@@ -44,4 +44,24 @@ class TransactionRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * Total amount in cents
+     */
+    public function getTotalAmountCurrentYearByEmail(string $email): int
+    {
+        return (int) $this->createQueryBuilder('transaction')
+            ->innerJoin('transaction.donation', 'donation')
+            ->select('SUM(donation.amount)')
+            ->where('donation.emailAddress = :email')
+            ->andWhere('transaction.payboxResultCode = :success_code')
+            ->andWhere('YEAR(transaction.payboxDateTime) = YEAR(NOW())')
+            ->setParameters([
+                'email' => $email,
+                'success_code' => Transaction::PAYBOX_SUCCESS,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 }

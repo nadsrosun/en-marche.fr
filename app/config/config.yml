@@ -133,6 +133,8 @@ doctrine:
             string_functions:
                 json_contains: AppBundle\Query\Mysql\JsonContains
                 find_in_set: DoctrineExtensions\Query\Mysql\FindInSet
+                YEAR: DoctrineExtensions\Query\Mysql\Year
+                NOW: DoctrineExtensions\Query\Mysql\Now
 
         hydrators:
             EventHydrator: AppBundle\Doctrine\Hydrators\EventHydrator

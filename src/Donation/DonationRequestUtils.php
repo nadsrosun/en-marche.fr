@@ -165,6 +165,47 @@ class DonationRequestUtils
         return $str;
     }
 
+    /**
+     * @param Donation[] $donations
+     *
+     * @return int amount in cents
+     */
+    public function estimateAmountRemainingForSubscriptions(array $donations, \DateTimeInterface $date = null): int
+    {
+        $totalAmount = 0;
+
+        foreach ($donations as $donation) {
+            $totalAmount += $this->estimateAmountRemaining($donation->getAmount(), $donation->getCreatedAt(), $date);
+        }
+
+        return $totalAmount;
+    }
+
+    public function estimateAmountRemaining(int $amount, \DateTimeInterface $donationStart, \DateTimeInterface $date = null): int
+    {
+        if ($nbIteration = $this->estimateNbIterationBeforeNextFiscalYear($donationStart, $date)) {
+            return $amount * $nbIteration;
+        }
+
+        return 0;
+    }
+
+    public function estimateNbIterationBeforeNextFiscalYear(\DateTimeInterface $donationStart, \DateTimeInterface $date = null): int
+    {
+        if (!$date) {
+            $date = new \DateTime();
+        }
+        $nextYear = \DateTime::createFromFormat('Y/m/d H:i:s', ((int) $date->format('Y') + 1).'/01/01 00:00:00');
+        $diff = $date->diff($nextYear);
+        $nb = $diff->m;
+
+        if ($donationStart->format('d') > $date->format('d')) {
+            ++$nb;
+        }
+
+        return $nb;
+    }
+
     private function hydrateFromRetryPayload(DonationRequest $request, string $payload): DonationRequest
     {
         try {

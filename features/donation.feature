@@ -24,6 +24,16 @@ Feature: The goal is to donate one time or multiple time with a subscription
       | /campus       |
       | /articles     |
 
+  Scenario: A user can't donate more than 7500€ per year
+    Given the following fixtures are loaded:
+      | LoadDonationData |
+    And I am logged as "jacques.picard@en-marche.fr"
+    And I am on "/don/coordonnees?montant=7490&abonnement=0"
+    And I press "Je donne"
+    Then I should see "Vous avez déjà donné 250 euros cette année."
+    And I should see "Vous avez un don mensuel de 100 euros en cours, ce qui représente 700 euros d'ici la fin de l'année."
+    And I should see "Les dons sont limités à 7500 euros par an et par personne. Vous pouvez donc encore donner 6550 d'ici au 31 décembre."
+
   @javascript
   Scenario: An anonymous user can donate successfully
     Given I am on "/don"
