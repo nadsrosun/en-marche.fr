@@ -26,5 +26,9 @@ class EventSerializationSubscriber implements EventSubscriberInterface
         $tag = ManagedAreaUtils::getCodeFromEvent($event->getObject());
 
         $event->getVisitor()->addData('tags', $tag ? [$tag] : []);
+
+        if ($author = $event->getObject()->getOrganizer()) {
+            $event->getVisitor()->addData('organizer', $author->getPartialName());
+        }
     }
 }
