@@ -171,5 +171,32 @@
 
         <!-- History -->
         <service id="AppBundle\History\EmailSubscriptionHistoryHandler" />
+
+        <!-- Sync with API -->
+
+        <!-- User subscriber -->
+        <service id="AppBundle\Membership\EventListener\UserSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+        </service>
+
+        <!-- Committee subscriber -->
+        <service id="AppBundle\Committee\EventListener\CommitteeSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+        </service>
+
+        <!-- Event subscriber -->
+        <service id="AppBundle\Event\EventListener\EventSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+        </service>
+
+        <!-- CitizenProject subscriber -->
+        <service id="AppBundle\CitizenProject\EventListener\CitizenProjectSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+        </service>
+
+        <!-- CitizenAction subscriber -->
+        <service id="AppBundle\CitizenAction\EventListener\CitizenActionSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+        </service>
     </services>
 </container>
