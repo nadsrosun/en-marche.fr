@@ -50,9 +50,9 @@ class CitizenActionSubscriber implements EventSubscriberInterface
     {
         return [
             // Api Synchronization should be done after all others subscribers so we put the lowest priority
-            Events::COMMITTEE_CREATED => [['publishCitizenActionCreated', -255]],
-            Events::COMMITTEE_UPDATED => [['publishCitizenActionUpdated', -255]],
-            Events::COMMITTEE_DELETED => [['publishCitizenActionDeleted', -255]],
+            Events::CITIZEN_ACTION_CREATED => [['publishCitizenActionCreated', -255]],
+            Events::CITIZEN_ACTION_UPDATED => [['publishCitizenActionUpdated', -255]],
+            Events::CITIZEN_ACTION_DELETED => [['publishCitizenActionDeleted', -255]],
         ];
     }
 }
