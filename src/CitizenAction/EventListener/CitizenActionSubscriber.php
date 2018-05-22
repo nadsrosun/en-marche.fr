@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Committee\EventListener;
+namespace AppBundle\CitizenAction\EventListener;
 
 use AppBundle\CitizenAction\CitizenActionEvent;
 use AppBundle\Events;
