@@ -17,6 +17,7 @@ final class Events
     public const CITIZEN_ACTION_CANCELLED = 'citizen_action_cancelled';
     public const CITIZEN_PROJECT_CREATED = 'citizen_project_created';
     public const CITIZEN_PROJECT_UPDATED = 'citizen_project_updated';
+    public const CITIZEN_PROJECT_DELETED = 'citizen_project_deleted';
     public const CITIZEN_PROJECT_APPROVED = 'citizen_project_approved';
     public const CITIZEN_PROJECT_FOLLOWER_ADDED = 'citizen_project_follower_added';
     public const CITIZEN_PROJECT_COMMENT_CREATED = 'citizen_project_comment_created';

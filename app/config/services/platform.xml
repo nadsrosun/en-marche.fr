@@ -369,5 +369,11 @@
             <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- CitizenProject subscriber -->
+        <service autowire="true" id="AppBundle\CitizenProject\EventListener\CitizenProjectSubscriber">
+            <argument key="$producer" type="service" id="old_sound_rabbit_mq.sync_api_producer"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>
