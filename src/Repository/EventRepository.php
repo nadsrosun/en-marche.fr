@@ -8,6 +8,8 @@ use AppBundle\Entity\CitizenAction;
 use AppBundle\Entity\Committee;
 use AppBundle\Entity\Event;
 use AppBundle\Search\SearchParametersFilter;
+use AppBundle\Statistics\StatisticsParametersFilter;
+use Cake\Chronos\Chronos;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
@@ -424,5 +426,108 @@ SQL;
         ;
 
         return new Paginator($query);
+    }
+
+    public function findCitiesForReferentAutocomplete(Adherent $referent, $value): array
+    {
+        if (!$referent->isReferent()) {
+            throw new \InvalidArgumentException('Adherent must be a referent.');
+        }
+
+        $qb = $this->createQueryBuilder('event')
+            ->select('DISTINCT event.postAddress.cityName as city')
+            ->join('event.referentTags', 'tag')
+            ->where('event.status = :status')
+            ->andWhere('event.committee IS NOT NULL')
+            ->andWhere('event.postAddress.cityName LIKE :word')
+            ->setParameter('word', $value.'%')
+            ->setParameter('status', BaseEvent::STATUS_SCHEDULED)
+            ->orderBy('city')
+        ;
+
+        $tagsFilter = $qb->expr()->orX();
+
+        foreach ($referent->getManagedArea()->getTags() as $key => $tag) {
+            $tagsFilter->add("tag.code IN (:tag_$key)");
+            $tagsFilter->add(
+                $qb->expr()->andX(
+                    'event.postAddress.country = \'FR\'',
+                    $qb->expr()->like('event.postAddress.postalCode', ":tag_prefix_$key")
+                )
+            );
+            $qb->setParameter("tag_$key", $tag->getCode());
+            $qb->setParameter("tag_prefix_$key", $tag->getCode().'%');
+        }
+
+        $qb->andWhere($tagsFilter);
+
+        return array_map(function (array $city) {
+            return $city['city'];
+        }, $qb->getQuery()->getArrayResult());
+    }
+
+    public function queryCountByMonth(Adherent $referent, int $months = 5): QueryBuilder
+    {
+        return $this->createQueryBuilder('event')
+            ->select('COUNT(event) AS count, YEAR_MONTH(event.beginAt) as yearmonth')
+            ->innerJoin('event.referentTags', 'tag')
+            ->where('tag IN (:tags)')
+            ->setParameter('tags', $referent->getManagedArea()->getTags())
+            ->andWhere('event.beginAt >= :from')
+            ->andWhere('event.beginAt <= :until')
+            ->setParameter('from', (new Chronos("first day of -$months months"))->setTime(0, 0, 0, 000))
+            ->setParameter('until', (new Chronos('now'))->setTime(23, 59, 59, 999))
+            ->groupBy('yearmonth')
+        ;
+    }
+
+    public function countCommitteeEventsInReferentManagedArea(Adherent $referent, StatisticsParametersFilter $filter = null): array
+    {
+        if (!$referent->isReferent()) {
+            throw new \InvalidArgumentException('Adherent must be a referent.');
+        }
+
+        $query = $this->queryCountByMonth($referent);
+
+        if ($filter->getCommittee()) {
+            $query->andWhere('event.committee = :committee')
+                ->setParameter('committee', $filter->getCommittee())
+            ;
+        }
+
+        if ($filter->getCityName()) {
+            $query->andWhere('event.postAddress.cityName = :city')
+                ->setParameter('city', $filter->getCityName())
+            ;
+        }
+
+        if ($filter->getCountryCode()) {
+            $query->andWhere('event.postAddress.country = :country')
+                ->setParameter('country', $filter->getCountryCode())
+            ;
+        }
+
+        $result = $query
+            ->andWhere('event.committee IS NOT NULL')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+
+        return $this->aggregateCountByMonth($result, BaseEvent::EVENT_TYPE.'s');
+    }
+
+    protected function aggregateCountByMonth(array $eventsCount, string $type, int $months = 6): array
+    {
+        foreach (range(0, $months - 1) as $month) {
+            $until = (new Chronos("first day of -$month month"));
+            $countByMonth[$until->format('Y-m')][$type] = 0;
+            foreach ($eventsCount as $count) {
+                if ($until->format('Ym') === $count['yearmonth']) {
+                    $countByMonth[$until->format('Y-m')][$type] = (int) $count['count'];
+                }
+            }
+        }
+
+        return $countByMonth;
     }
 }

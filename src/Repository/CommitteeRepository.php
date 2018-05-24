@@ -358,6 +358,80 @@ class CommitteeRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findApprovedForReferentAutocomplete(Adherent $referent, $value): array
+    {
+        if (!$referent->isReferent()) {
+            throw new \InvalidArgumentException('Adherent must be a referent.');
+        }
+
+        $qb = $this->createQueryBuilder('committee')
+            ->select('committee.uuid, committee.name')
+            ->join('committee.referentTags', 'tag')
+            ->where('committee.status = :status')
+            ->andWhere('committee.name LIKE :word')
+            ->setParameter('word', $value.'%')
+            ->setParameter('status', Committee::APPROVED)
+            ->orderBy('committee.name')
+        ;
+
+        $tagsFilter = $qb->expr()->orX();
+
+        foreach ($referent->getManagedArea()->getTags() as $key => $tag) {
+            $tagsFilter->add("tag.code IN (:tag_$key)");
+            $tagsFilter->add(
+                $qb->expr()->andX(
+                    'committee.postAddress.country = \'FR\'',
+                    $qb->expr()->like('committee.postAddress.postalCode', ":tag_prefix_$key")
+                )
+            );
+            $qb->setParameter("tag_$key", $tag->getCode());
+            $qb->setParameter("tag_prefix_$key", $tag->getCode().'%');
+        }
+
+        $qb->andWhere($tagsFilter);
+
+        return array_map(function (array $committee) {
+            return [$committee['uuid'] => $committee['name']];
+        }, $qb->getQuery()->getScalarResult());
+    }
+
+    public function findCitiesForReferentAutocomplete(Adherent $referent, $value): array
+    {
+        if (!$referent->isReferent()) {
+            throw new \InvalidArgumentException('Adherent must be a referent.');
+        }
+
+        $qb = $this->createQueryBuilder('committee')
+            ->select('DISTINCT committee.postAddress.cityName as city')
+            ->join('committee.referentTags', 'tag')
+            ->where('committee.status = :status')
+            ->andWhere('committee.postAddress.cityName LIKE :word')
+            ->setParameter('word', $value.'%')
+            ->setParameter('status', Committee::APPROVED)
+            ->orderBy('city')
+        ;
+
+        $tagsFilter = $qb->expr()->orX();
+
+        foreach ($referent->getManagedArea()->getTags() as $key => $tag) {
+            $tagsFilter->add("tag.code IN (:tag_$key)");
+            $tagsFilter->add(
+                $qb->expr()->andX(
+                    'committee.postAddress.country = \'FR\'',
+                    $qb->expr()->like('committee.postAddress.postalCode', ":tag_prefix_$key")
+                )
+            );
+            $qb->setParameter("tag_$key", $tag->getCode());
+            $qb->setParameter("tag_prefix_$key", $tag->getCode().'%');
+        }
+
+        $qb->andWhere($tagsFilter);
+
+        return array_map(function (array $city) {
+            return $city['city'];
+        }, $qb->getQuery()->getArrayResult());
+    }
+
     public function retrieveMostActiveCommitteesInReferentManagedArea(Adherent $referent, int $limit = 5): array
     {
         return $this->retrieveTopCommitteesInReferentManagedArea($referent, $limit);

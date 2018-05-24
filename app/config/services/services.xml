@@ -174,5 +174,8 @@
 
         <!-- History -->
         <service id="AppBundle\History\EmailSubscriptionHistoryHandler" />
+
+        <!-- Stats -->
+        <service id="AppBundle\Statistics\StatisticsParametersFilter" public="true" />
     </services>
 </container>
