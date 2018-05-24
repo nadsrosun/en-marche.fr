@@ -192,5 +192,15 @@
 
         <!-- History -->
         <service id="AppBundle\History\EmailSubscriptionHistoryHandler" />
+
+        <!-- Republican Silence -->
+        <service id="AppBundle\RepublicanSilence\CheckRepublicanSilenceListener" />
+        <service id="AppBundle\RepublicanSilence\Manager">
+            <argument type="service" key="$cache">
+                <service class="Symfony\Component\Cache\Simple\Psr6Cache">
+                    <argument type="service" id="app.cache.republican_silence" />
+                </service>
+            </argument>
+        </service>
     </services>
 </container>
