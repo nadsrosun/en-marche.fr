@@ -34,7 +34,7 @@ class CheckRepublicanSilenceListener implements EventSubscriberInterface
     private $republicanSilenceManager;
     private $templateEngine;
 
-    public function __construct(TokenStorageInterface $tokenStorage, Manager $manager, EngineInterface $engine)
+    public function __construct(TokenStorageInterface $tokenStorage, RepublicanSilenceManager $manager, EngineInterface $engine)
     {
         $this->tokenStorage = $tokenStorage;
         $this->republicanSilenceManager = $manager;

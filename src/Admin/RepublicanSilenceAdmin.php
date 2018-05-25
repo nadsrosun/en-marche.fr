@@ -3,7 +3,7 @@
 namespace AppBundle\Admin;
 
 use AppBundle\Entity\RepublicanSilence;
-use AppBundle\RepublicanSilence\Manager;
+use AppBundle\RepublicanSilence\RepublicanSilenceManager;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
@@ -12,11 +12,11 @@ use Sonata\CoreBundle\Form\Type\DateTimePickerType;
 class RepublicanSilenceAdmin extends AbstractAdmin
 {
     /**
-     * @var Manager
+     * @var RepublicanSilenceManager
      */
     private $republicanSilenceManager;
 
-    public function setRepublicanSilenceManager(Manager $manager): void
+    public function setRepublicanSilenceManager(RepublicanSilenceManager $manager): void
     {
         $this->republicanSilenceManager = $manager;
     }

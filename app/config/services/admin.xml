@@ -587,7 +587,7 @@
             <argument>AppBundle\Entity\RepublicanSilence</argument>
             <argument />
             <call method="setRepublicanSilenceManager">
-                <argument type="service" id="AppBundle\RepublicanSilence\Manager"/>
+                <argument type="service" id="AppBundle\RepublicanSilence\RepublicanSilenceManager"/>
             </call>
         </service>
 

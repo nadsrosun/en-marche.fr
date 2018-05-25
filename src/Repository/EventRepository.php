@@ -7,8 +7,10 @@ use AppBundle\Entity\BaseEvent;
 use AppBundle\Entity\CitizenAction;
 use AppBundle\Entity\Committee;
 use AppBundle\Entity\Event;
+use AppBundle\Entity\ReferentTag;
 use AppBundle\Search\SearchParametersFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -109,6 +111,53 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    public function findStartedEventBetweenDatesForTags(
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate,
+        array $referentTags
+    ): array {
+        if (!$referentTags) {
+            return [];
+        }
+
+        $qb = $this
+            ->createQueryBuilder('event')
+            ->addSelect('adherent')
+            ->join('event.organizer', 'adherent')
+            ->where('event.beginAt < :end_date AND event.finishAt > :start_date')
+            ->andWhere('event.status = :status')
+            ->setParameters([
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => Event::STATUS_SCHEDULED,
+            ])
+        ;
+
+        if (Event::class === $this->getEntityName()) {
+            $qb
+                ->join('event.committee', 'committee')
+                ->join('committee.referentTags', 'referentTags')
+                ->andWhere('referentTags IN (:tags)')
+                ->setParameter('tags', $referentTags)
+            ;
+        } else {
+            // Use ReferentTag on CP when it will be added
+            $qb
+                ->join('event.citizenProject', 'citizenProject')
+                ->andWhere(
+                    (new Orx())
+                        ->add('SUBSTRING(citizenProject.postAddress.postalCode, 1, 2) IN (:tags)')
+                        ->add('citizenProject.postAddress.postalCode IN (:tags)')
+                        ->add('citizenProject.postAddress.cityName IN (:tags)')
+                        ->add('citizenProject.postAddress.country IN (:tags)')
+                )
+                ->setParameter('tags', array_map(function (ReferentTag $tag) { return $tag->getCode(); }, $referentTags))
+            ;
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     protected function createSlugQueryBuilder(string $slug): QueryBuilder

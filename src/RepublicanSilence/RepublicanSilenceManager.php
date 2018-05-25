@@ -6,7 +6,7 @@ use AppBundle\Entity\RepublicanSilence;
 use AppBundle\Repository\RepublicanSilenceRepository;
 use Psr\SimpleCache\CacheInterface;
 
-class Manager
+class RepublicanSilenceManager
 {
     private const CACHE_PREFIX_KEY = 'republican_silence_';
 
@@ -22,7 +22,7 @@ class Manager
     /**
      * @return RepublicanSilence[]|iterable
      */
-    public function getRepublicanSilenceForDate(\DateTimeInterface $date): iterable
+    public function getRepublicanSilencesForDate(\DateTimeInterface $date): iterable
     {
         $cacheKey = $this->getCacheKey($date);
 
@@ -37,9 +37,14 @@ class Manager
         return $silences;
     }
 
+    public function getRepublicanSilencesBetweenDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): iterable
+    {
+        return $this->repository->findActiveBetweenDates($startDate, $endDate);
+    }
+
     public function hasStartedSilence(array $tags): bool
     {
-        $silences = $this->getRepublicanSilenceForDate(new \DateTime());
+        $silences = $this->getRepublicanSilencesForDate(new \DateTime());
 
         foreach ($silences as $silence) {
             if (array_intersect($silence->getReferentTagCodes(), $tags)) {

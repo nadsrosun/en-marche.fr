@@ -14,6 +14,7 @@ use AppBundle\Controller\PrintControllerTrait;
 use AppBundle\Entity\CitizenAction;
 use AppBundle\Entity\CitizenProject;
 use AppBundle\Entity\EventRegistration;
+use AppBundle\Event\EventCancelHandler;
 use AppBundle\Event\EventRegistrationCommand;
 use AppBundle\Exception\BadUuidRequestException;
 use AppBundle\Exception\InvalidUuidException;
@@ -114,14 +115,12 @@ class CitizenActionManagerController extends Controller
      */
     public function cancelAction(Request $request, CitizenAction $action, CitizenProject $project): Response
     {
-        $command = CitizenActionCommand::createFromCitizenAction($action);
-
         $form = $this->createForm(FormType::class)
             ->handleRequest($request)
         ;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->get(CitizenActionCommandHandler::class)->handleCancel($action, $command->getAuthor());
+            $this->get(EventCancelHandler::class)->handle($action);
             $this->addFlash('info', $this->get('translator')->trans('citizen_action.cancel.success'));
 
             return $this->redirectToRoute('app_citizen_action_show', [

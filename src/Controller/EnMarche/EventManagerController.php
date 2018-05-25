@@ -4,6 +4,7 @@ namespace AppBundle\Controller\EnMarche;
 
 use AppBundle\Controller\PrintControllerTrait;
 use AppBundle\Entity\EventRegistration;
+use AppBundle\Event\EventCancelHandler;
 use AppBundle\Event\EventCommand;
 use AppBundle\Event\EventContactMembersCommand;
 use AppBundle\Entity\Event;
@@ -72,13 +73,11 @@ class EventManagerController extends Controller
      */
     public function cancelAction(Request $request, Event $event): Response
     {
-        $command = EventCommand::createFromEvent($event);
-
         $form = $this->createForm(FormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->get('app.event.handler')->handleCancel($event, $command);
+            $this->get(EventCancelHandler::class)->handle($event);
             $this->addFlash('info', $this->get('translator')->trans('committee.event.cancel.success'));
 
             return $this->redirectToRoute('app_event_show', [
