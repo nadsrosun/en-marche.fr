@@ -4,6 +4,7 @@ namespace AppBundle\Event;
 
 use AppBundle\CitizenAction\CitizenActionEvent;
 use AppBundle\Entity\BaseEvent;
+use AppBundle\Entity\CitizenAction;
 use AppBundle\Entity\Event as CommitteeEvent;
 use AppBundle\Events;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -17,7 +18,7 @@ class EventCanceledHandler
 
     private const EVENTS_MAPPING = [
         CommitteeEvent::class => Events::EVENT_CANCELLED,
-        CitizenActionEvent::class => Events::CITIZEN_ACTION_CANCELLED,
+        CitizenAction::class => Events::CITIZEN_ACTION_CANCELLED,
     ];
 
     public function __construct(EventDispatcherInterface $dispatcher, ObjectManager $manager)

@@ -30,6 +30,9 @@ class Version20180523105720 extends AbstractMigration
 
         $this->addSql('ALTER TABLE republican_silence_referent_tag ADD CONSTRAINT FK_543DED2612359909 FOREIGN KEY (republican_silence_id) REFERENCES republican_silence (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE republican_silence_referent_tag ADD CONSTRAINT FK_543DED269C262DB3 FOREIGN KEY (referent_tag_id) REFERENCES referent_tags (id) ON DELETE CASCADE');
+        $this->addSql('CREATE INDEX IDX_5387574A3826374D ON events (begin_at)');
+        $this->addSql('CREATE INDEX IDX_5387574AFE28FD87 ON events (finish_at)');
+        $this->addSql('CREATE INDEX IDX_5387574A7B00651C ON events (status)');
     }
 
     public function down(Schema $schema)
@@ -37,5 +40,8 @@ class Version20180523105720 extends AbstractMigration
         $this->addSql('ALTER TABLE republican_silence_referent_tag DROP FOREIGN KEY FK_543DED2612359909');
         $this->addSql('DROP TABLE republican_silence');
         $this->addSql('DROP TABLE republican_silence_referent_tag');
+        $this->addSql('DROP INDEX IDX_5387574A3826374D ON events');
+        $this->addSql('DROP INDEX IDX_5387574AFE28FD87 ON events');
+        $this->addSql('DROP INDEX IDX_5387574A7B00651C ON events');
     }
 }
