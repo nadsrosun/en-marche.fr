@@ -469,24 +469,7 @@ SQL;
         $this->checkReferent($referent);
 
         $query = $this->queryCountByMonth($referent);
-
-        if ($filter->getCommittee()) {
-            $query->andWhere('event.committee = :committee')
-                ->setParameter('committee', $filter->getCommittee())
-            ;
-        }
-
-        if ($filter->getCityName()) {
-            $query->andWhere('event.postAddress.cityName = :city')
-                ->setParameter('city', $filter->getCityName())
-            ;
-        }
-
-        if ($filter->getCountryCode()) {
-            $query->andWhere('event.postAddress.country = :country')
-                ->setParameter('country', $filter->getCountryCode())
-            ;
-        }
+        $query = $this->addStatstFilter($filter, $query);
 
         $result = $query
             ->andWhere('event.committee IS NOT NULL')
@@ -495,20 +478,5 @@ SQL;
         ;
 
         return $this->aggregateCountByMonth($result, BaseEvent::EVENT_TYPE.'s');
-    }
-
-    protected function aggregateCountByMonth(array $eventsCount, string $type, int $months = 6): array
-    {
-        foreach (range(0, $months - 1) as $month) {
-            $until = (new Chronos("first day of -$month month"));
-            $countByMonth[$until->format('Y-m')][$type] = 0;
-            foreach ($eventsCount as $count) {
-                if ($until->format('Ym') === $count['yearmonth']) {
-                    $countByMonth[$until->format('Y-m')][$type] = (int) $count['count'];
-                }
-            }
-        }
-
-        return $countByMonth;
     }
 }

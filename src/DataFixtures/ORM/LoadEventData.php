@@ -315,6 +315,22 @@ class LoadEventData implements FixtureInterface, ContainerAwareInterface, Depend
         $manager->persist($registrationFactory->createFromCommand(new EventRegistrationCommand($event11, $author3)));
         $manager->persist($registrationFactory->createFromCommand(new EventRegistrationCommand($event12, $author12)));
         $manager->persist($registrationFactory->createFromCommand(new EventRegistrationCommand($event12, $author3)));
+        // Registration of non adherents
+        $eventRegistration1 = new EventRegistrationCommand($event10);
+        $eventRegistration1->setFirstName('Marie');
+        $eventRegistration1->setLastName('CLAIRE');
+        $eventRegistration1->setEmailAddress('marie.claire@test.com');
+        $eventRegistration2 = new EventRegistrationCommand($event10);
+        $eventRegistration2->setFirstName('Pierre');
+        $eventRegistration2->setLastName('FRANCE');
+        $eventRegistration2->setEmailAddress('pierre.france@test.com');
+        $eventRegistration3 = new EventRegistrationCommand($event6);
+        $eventRegistration3->setFirstName('Jean');
+        $eventRegistration3->setLastName('PIERRE');
+        $eventRegistration3->setEmailAddress('jean.pierre@test.com');
+        $manager->persist($registrationFactory->createFromCommand($eventRegistration1));
+        $manager->persist($registrationFactory->createFromCommand($eventRegistration2));
+        $manager->persist($registrationFactory->createFromCommand($eventRegistration3));
 
         $manager->flush();
 
