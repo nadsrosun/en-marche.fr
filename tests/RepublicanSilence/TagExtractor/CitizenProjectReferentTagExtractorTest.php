@@ -8,15 +8,12 @@ use AppBundle\Entity\CitizenProject;
 use AppBundle\Entity\CitizenProjectMembership;
 use AppBundle\RepublicanSilence\TagExtractor\CitizenProjectReferentTagExtractor;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 class CitizenProjectReferentTagExtractorTest extends TestCase
 {
     public function testExtractTags()
     {
         $tagExtractor = new CitizenProjectReferentTagExtractor();
-
-        $request = new Request([], [], ['slug' => 'project-slug']);
 
         $adherentMock = $this->createConfiguredMock(Adherent::class, [
             'getCitizenProjectMemberships' => new CitizenProjectMembershipCollection([
@@ -35,7 +32,7 @@ class CitizenProjectReferentTagExtractorTest extends TestCase
 
         $this->assertSame(
             ['75001', 'Paris', 'France', 'FR', '75'],
-            $tagExtractor->extractTags($adherentMock, $request)
+            $tagExtractor->extractTags($adherentMock, 'project-slug')
         );
     }
 }

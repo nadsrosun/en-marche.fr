@@ -6,6 +6,7 @@ use AppBundle\Entity\Adherent;
 use AppBundle\RepublicanSilence\TagExtractor\ReferentTagExtractorInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -67,7 +68,7 @@ class CheckRepublicanSilenceListener implements EventSubscriberInterface
 
         $tagExtractor = ReferentTagExtractorFactory::create(self::ROUTES[$route]);
 
-        if (!$tags = $tagExtractor->extractTags($user, $event->getRequest())) {
+        if (!$tags = $tagExtractor->extractTags($user, $this->getSlug($event->getRequest(), self::ROUTES[$route]))) {
             return;
         }
 
@@ -90,5 +91,17 @@ class CheckRepublicanSilenceListener implements EventSubscriberInterface
                 || $user->isReferent()
                 || $user->isCitizenProjectAdministrator()
             );
+    }
+
+    private function getSlug(Request $request, string $type): ?string
+    {
+        switch ($type) {
+            case ReferentTagExtractorInterface::ADHERENT_TYPE_CITIZEN_PROJECT_ADMINISTRATOR:
+                return $request->attributes->get('slug', $request->attributes->get('project_slug'));
+            case ReferentTagExtractorInterface::ADHERENT_TYPE_COMMITTEE_ADMINISTRATOR:
+                return $request->attributes->get('slug');
+        }
+
+        return null;
     }
 }

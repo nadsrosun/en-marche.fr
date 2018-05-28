@@ -8,15 +8,12 @@ use AppBundle\Entity\Committee;
 use AppBundle\Entity\CommitteeMembership;
 use AppBundle\RepublicanSilence\TagExtractor\CommitteeReferentTagExtractor;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 class CommitteeReferentTagExtractorTest extends TestCase
 {
     public function testExtractTags()
     {
         $tagExtractor = new CommitteeReferentTagExtractor();
-
-        $request = new Request([], [], ['slug' => 'committee-slug']);
 
         $adherentMock = $this->createConfiguredMock(Adherent::class, [
             'getMemberships' => new CommitteeMembershipCollection([
@@ -32,7 +29,7 @@ class CommitteeReferentTagExtractorTest extends TestCase
 
         $this->assertSame(
             ['tag1', 'tag2', 'tag10'],
-            $tagExtractor->extractTags($adherentMock, $request)
+            $tagExtractor->extractTags($adherentMock, 'committee-slug')
         );
     }
 }

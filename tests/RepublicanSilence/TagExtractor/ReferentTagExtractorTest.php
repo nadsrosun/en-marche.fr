@@ -7,7 +7,6 @@ use AppBundle\Entity\ReferentManagedArea;
 use AppBundle\Entity\ReferentTag;
 use AppBundle\RepublicanSilence\TagExtractor\ReferentTagExtractor;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 class ReferentTagExtractorTest extends TestCase
 {
@@ -24,7 +23,7 @@ class ReferentTagExtractorTest extends TestCase
 
         $this->assertSame(
             ['tag1', 'tag2'],
-            $tagExtractor->extractTags($adherentMock, new Request())
+            $tagExtractor->extractTags($adherentMock, null)
         );
     }
 }
