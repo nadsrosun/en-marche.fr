@@ -105,6 +105,9 @@ class RepublicanSilence implements \Serializable
         }, $this->referentTags->toArray());
     }
 
+    /**
+     * Controls serialized data of republican silence for storing in the cache
+     */
     public function serialize()
     {
         return serialize([
@@ -115,6 +118,9 @@ class RepublicanSilence implements \Serializable
         ]);
     }
 
+    /**
+     * Controls unserialize process to change the type of referentsTags property to ArrayCollection
+     */
     public function unserialize($serialized)
     {
         [$this->id, $this->beginAt, $this->finishAt, $referentTags] = unserialize($serialized);

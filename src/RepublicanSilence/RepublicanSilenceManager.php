@@ -42,12 +42,12 @@ class RepublicanSilenceManager
         return $this->repository->findActiveBetweenDates($startDate, $endDate);
     }
 
-    public function hasStartedSilence(array $tags): bool
+    public function hasStartedSilence(array $referentTagCodes): bool
     {
         $silences = $this->getRepublicanSilencesForDate(new \DateTime());
 
         foreach ($silences as $silence) {
-            if (array_intersect($silence->getReferentTagCodes(), $tags)) {
+            if (array_intersect($silence->getReferentTagCodes(), $referentTagCodes)) {
                 return true;
             }
         }

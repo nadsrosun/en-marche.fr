@@ -137,9 +137,13 @@ class EventRepository extends ServiceEntityRepository
 
         if (Event::class === $this->getEntityName()) {
             $qb
-                ->join('event.committee', 'committee')
-                ->join('committee.referentTags', 'referentTags')
-                ->andWhere('referentTags IN (:tags)')
+                ->leftJoin('event.committee', 'committee')
+                ->leftJoin('committee.referentTags', 'committeeReferentTags')
+                ->leftJoin('adherent.referentTags', 'adherentReferentTags')
+                ->andWhere((new Orx())
+                    ->add('committee IS NOT NULL AND committeeReferentTags IN (:tags)')
+                    ->add('committee IS NULL AND adherentReferentTags IN (:tags)')
+                )
                 ->setParameter('tags', $referentTags)
             ;
         } else {

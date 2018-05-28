@@ -86,7 +86,7 @@
 
         <!-- Event -->
         <service id="AppBundle\Event\EventFactory" public="true" />
-        <service id="AppBundle\Event\EventCancelHandler" public="true"/>
+        <service id="AppBundle\Event\EventCanceledHandler" />
 
         <service id="AppBundle\Event\EventRegistrationSubscriber">
             <argument type="service" id="app.mailer.transactional" />

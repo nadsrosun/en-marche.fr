@@ -10,10 +10,15 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class EventCancelHandler
+class EventCanceledHandler
 {
     private $dispatcher;
     private $manager;
+
+    private const EVENTS_MAPPING = [
+        CommitteeEvent::class => Events::EVENT_CANCELLED,
+        CitizenActionEvent::class => Events::CITIZEN_ACTION_CANCELLED,
+    ];
 
     public function __construct(EventDispatcherInterface $dispatcher, ObjectManager $manager)
     {
@@ -23,21 +28,22 @@ class EventCancelHandler
 
     public function handle(BaseEvent $event): BaseEvent
     {
+        $className = get_class($event);
+
+        if (!array_key_exists($className, self::EVENTS_MAPPING)) {
+            throw new \InvalidArgumentException(sprintf('[%s] Invalid Event type [%s]', self::class, $className));
+        }
+
         $event->cancel();
 
         $this->manager->flush();
 
         $this->dispatcher->dispatch(
-            $this->getEventType($event),
+            self::EVENTS_MAPPING[$className],
             $this->createDispatchedEvent($event)
         );
 
         return $event;
-    }
-
-    private function getEventType(BaseEvent $event): string
-    {
-        return $event instanceof CommitteeEvent ? Events::EVENT_CANCELLED : Events::CITIZEN_ACTION_CANCELLED;
     }
 
     private function createDispatchedEvent(BaseEvent $event): Event

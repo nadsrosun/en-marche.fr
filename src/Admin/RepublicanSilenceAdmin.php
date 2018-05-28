@@ -33,7 +33,7 @@ class RepublicanSilenceAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $form)
     {
         $form
-            ->with('General', ['class' => 'col-md-6'])
+            ->with('Général', ['class' => 'col-md-6'])
                 ->add('referentTags')
                 ->add('beginAt', DateTimePickerType::class, [
                     'label' => 'common.begin_at',

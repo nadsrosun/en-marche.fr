@@ -15,8 +15,8 @@ class LoadRepublicanSilenceData extends AbstractFixture implements DependentFixt
         $entity->addReferentTag($this->getReference('referent_tag_92'));
         $entity->addReferentTag($this->getReference('referent_tag_sg'));
         $entity->addReferentTag($this->getReference('referent_tag_13'));
-        $entity->setBeginAt((new \DateTime())->modify('-10 days'));
-        $entity->setFinishAt((new \DateTime())->modify('+10 days'));
+        $entity->setBeginAt(new \DateTime('-10 days'));
+        $entity->setFinishAt(new \DateTime('+10 days'));
 
         $manager->persist($entity);
         $manager->flush();
