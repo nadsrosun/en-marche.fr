@@ -20,32 +20,27 @@ class StatisticsParametersFilter
     private $cityName = null;
     private $countryCode = null;
 
-    private $committeeRepository;
-
-    public function __construct(CommitteeRepository $committeeRepository)
+    public static function fromRequest(Request $request, CommitteeRepository $committeeRepository): StatisticsParametersFilter
     {
-        $this->committeeRepository = $committeeRepository;
-    }
+        $filter = new StatisticsParametersFilter();
 
-    public function handleRequest(Request $request): self
-    {
         if ($uuid = $request->query->get(self::PARAMETER_COMMITTEE_UUID)) {
-            if ($committee = $this->committeeRepository->findOneByUuid($uuid)) {
-                $this->setCommittee($committee);
+            if ($committee = $committeeRepository->findOneByUuid($uuid)) {
+                $filter->setCommittee($committee);
             } else {
                 throw new InvalidArgumentException("There is no committee with UUID '$uuid'.");
             }
         }
 
         if ($cityName = $request->query->get(self::PARAMETER_CITY_NAME)) {
-            $this->setCityName((string) $cityName);
+            $filter->setCityName((string) $cityName);
         }
 
         if ($countryCode = $request->query->get(self::PARAMETER_COUNTRY_CODE)) {
-            $this->setCountryCode((string) $countryCode);
+            $filter->setCountryCode((string) $countryCode);
         }
 
-        return $this;
+        return $filter;
     }
 
     public function setCommittee(Committee $committee): void

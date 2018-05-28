@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller\Api;
 
+use AppBundle\Entity\Committee;
 use AppBundle\Repository\EventRepository;
 use AppBundle\Statistics\StatisticsParametersFilter;
 use Psr\Log\InvalidArgumentException;
@@ -37,7 +38,7 @@ class EventsController extends Controller
     {
         $referent = $this->getUser();
         try {
-            $filter = $this->get(StatisticsParametersFilter::class)->handleRequest($request);
+            $filter = StatisticsParametersFilter::fromRequest($request, $this->getDoctrine()->getRepository(Committee::class));
         } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }

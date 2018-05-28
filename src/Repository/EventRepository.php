@@ -24,6 +24,7 @@ class EventRepository extends ServiceEntityRepository
 
     use GeoFilterTrait;
     use NearbyTrait;
+    use ReferentTrait;
     use UuidEntityRepositoryTrait {
         findOneByUuid as findOneByValidUuid;
     }
@@ -133,9 +134,7 @@ class EventRepository extends ServiceEntityRepository
      */
     public function findManagedBy(Adherent $referent): array
     {
-        if (!$referent->isReferent()) {
-            return [];
-        }
+        $this->checkReferent($referent);
 
         $qb = $this->createQueryBuilder('e')
             ->select('e', 'a', 'c', 'o')
@@ -430,36 +429,20 @@ SQL;
 
     public function findCitiesForReferentAutocomplete(Adherent $referent, $value): array
     {
-        if (!$referent->isReferent()) {
-            throw new \InvalidArgumentException('Adherent must be a referent.');
-        }
+        $this->checkReferent($referent);
 
         $qb = $this->createQueryBuilder('event')
             ->select('DISTINCT event.postAddress.cityName as city')
             ->join('event.referentTags', 'tag')
             ->where('event.status = :status')
             ->andWhere('event.committee IS NOT NULL')
-            ->andWhere('event.postAddress.cityName LIKE :word')
-            ->setParameter('word', $value.'%')
+            ->andWhere('event.postAddress.cityName LIKE :searchedCityName')
+            ->andWhere('tag.id IN (:tags)')
+            ->setParameter('searchedCityName', $value.'%')
             ->setParameter('status', BaseEvent::STATUS_SCHEDULED)
+            ->setParameter('tags', $referent->getManagedArea()->getTags())
             ->orderBy('city')
         ;
-
-        $tagsFilter = $qb->expr()->orX();
-
-        foreach ($referent->getManagedArea()->getTags() as $key => $tag) {
-            $tagsFilter->add("tag.code IN (:tag_$key)");
-            $tagsFilter->add(
-                $qb->expr()->andX(
-                    'event.postAddress.country = \'FR\'',
-                    $qb->expr()->like('event.postAddress.postalCode', ":tag_prefix_$key")
-                )
-            );
-            $qb->setParameter("tag_$key", $tag->getCode());
-            $qb->setParameter("tag_prefix_$key", $tag->getCode().'%');
-        }
-
-        $qb->andWhere($tagsFilter);
 
         return array_map(function (array $city) {
             return $city['city'];
@@ -483,9 +466,7 @@ SQL;
 
     public function countCommitteeEventsInReferentManagedArea(Adherent $referent, StatisticsParametersFilter $filter = null): array
     {
-        if (!$referent->isReferent()) {
-            throw new \InvalidArgumentException('Adherent must be a referent.');
-        }
+        $this->checkReferent($referent);
 
         $query = $this->queryCountByMonth($referent);
 
