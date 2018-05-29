@@ -24,7 +24,7 @@ abstract class AbstractCitizenProjectMediaCommand implements MediaCommandInterfa
     /**
      * @var File
      *
-     * @Assert\Image(minWidth=1200)
+     * @Assert\Image(minWidth=1600)
      */
     private $backgroundImage;
 
